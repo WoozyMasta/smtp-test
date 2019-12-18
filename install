@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+#  sript.sh
+#
+#  Copyright 2019 WoozyMasta <woozy.masta@gmail.com>
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+#
+
+set -eo
+
+work_dir="$(dirname "$(readlink -f "$0")")"
+install_dir="/opt/smtp-test"
+
+if [ "$(id -nu)" != "root" ]; then
+    if command -v sudo; then
+        exec sudo -S -p '' "$0" "$@"
+        exit 0
+    else
+        >&2 echo "Please run me with root."
+        exit 1
+    fi
+fi
+
+if pidof systemd; then
+    mkdir -p "$install_dir" && \
+    cp "$work_dir/smtp-test.py" "$install_dir" && \
+    chmod +x "$install_dir/smtp-test.py" && \
+    cp "$work_dir/smtp-test.service" "/etc/systemd/system/smtp-test.service" && \
+    touch /var/log/smtp-test.log && \
+    systemctl enable smtp-test.service && \
+    systemctl start smtp-test.service &&
+    echo "Service smtp-test.service install sucessful."
+else
+    >&2 echo "Aborted. This install work only in systemd."
+    exit 1
+fi
+exit 0
