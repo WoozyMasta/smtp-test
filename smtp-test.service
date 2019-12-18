@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=idle
-ExecStart=/usr/bin/python /opt/test-smtp/smtp-test.py --logfile /var/log/smtp-test.log
+ExecStart=/usr/bin/python /opt/smtp-test/smtp-test.py --logfile /var/log/smtp-test.log
 KillSignal=SIGINT
 Restart=always
 
